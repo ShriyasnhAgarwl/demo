@@ -23,7 +23,7 @@ const books = [
 const BookType = new GraphQLObjectType({
     name:"Book",
     description:'This represents a book written by an author',
-    fields:()=>({
+    fields:()=> ({
         id:{type:new GraphQLNonNull(GraphQLInt)},
         name:{type:new GraphQLNonNull(GraphQLString)},
         authorId:{type:new GraphQLNonNull(GraphQLInt)},
@@ -78,7 +78,35 @@ const RootQueryType = new GraphQLObjectType({
     })
 });
 
-const schema = new GraphQLSchema({query:RootQueryType})
+const RootMutationType = new GraphQLObjectType({
+    name:'RootMutationType',
+    description:'Root Mutation',
+    fields: () => ({
+
+        addBook: {
+            type:BookType,
+            description: "Add new book",
+            args : { 
+                name:{type:new GraphQLNonNull(GraphQLString)},
+                authorId:{type:new GraphQLNonNull(GraphQLInt)}
+            },
+            resolve:(parent,args)=>{
+                const book={
+                    id:books.length+1,
+                    name:args.name,
+                    authorId:args.authorId
+                };
+                books.push(book);
+                return book;
+            } 
+        }
+    })
+}) 
+
+const schema = new GraphQLSchema({
+    query:RootQueryType,
+    mutation:RootMutationType
+})
 
 app.use('/graphql', expressgraphql({
     schema:schema,
